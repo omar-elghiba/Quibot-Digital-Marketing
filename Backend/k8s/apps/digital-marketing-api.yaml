@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: digital-marketing-api-deployment
+  labels:
+    app: digital-marketing-api-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: digital-marketing-api-deployment
+  template:
+    metadata:
+      labels:
+        app: digital-marketing-api-deployment
+    spec:
+      containers:
+      - name: digital-marketing-api
+        image: elghibaomar/digital-marketing-api:latest
+        imagePullPolicy: Always
+        envFrom:
+          - secretRef:
+              name: digital-marketing-api-prod-env
+        env:
+          - name: PORT
+            value: "3000"
+        ports:
+        - containerPort: 3000
+      imagePullSecrets:
+        - name: digital-marketing-api-prod-env
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: digital-marketing-api-service
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 3000
+  selector:
+    app: digital-marketing-api-deployment
